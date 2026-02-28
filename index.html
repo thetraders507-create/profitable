@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Market Signal Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial;
+            background: #111;
+            color: white;
+            text-align: center;
+        }
+        .box {
+            background: #222;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+        }
+        .buy { color: lime; font-size: 24px; }
+        .sell { color: red; font-size: 24px; }
+    </style>
+</head>
+<body>
+
+<h1>📊 Indian Market Signal Dashboard</h1>
+
+<div class="box">
+    <h2>NIFTY 50</h2>
+    <p id="niftyPrice">Loading...</p>
+    <p id="signal"></p>
+</div>
+
+<div class="box">
+    <h2>Gold Price</h2>
+    <p id="goldPrice">Loading...</p>
+</div>
+
+<div class="box">
+    <h2>Bitcoin Price</h2>
+    <p id="btcPrice">Loading...</p>
+</div>
+
+<script>
+
+// === EMA Calculation ===
+function calculateEMA(prices, period) {
+    let k = 2 / (period + 1);
+    let emaArray = [];
+    emaArray[0] = prices[0];
+
+    for (let i = 1; i < prices.length; i++) {
+        emaArray[i] = prices[i] * k + emaArray[i - 1] * (1 - k);
+    }
+    return emaArray;
+}
+
+// === Sample Data (Temporary Demo Data) ===
+let prices = [22000,22100,22200,22150,22300,22400,22500,22600,22700,22800];
+
+let ema9 = calculateEMA(prices, 9);
+let ema15 = calculateEMA(prices, 15);
+
+let lastPrice = prices[prices.length - 1];
+let lastEMA9 = ema9[ema9.length - 1];
+let lastEMA15 = ema15[ema15.length - 1];
+
+// === Signal Logic ===
+if (lastPrice > lastEMA9 && lastEMA9 > lastEMA15) {
+    document.getElementById("signal").innerHTML =
+        "<span class='buy'>BUY SIGNAL ✅</span>";
+} else if (lastPrice < lastEMA9 && lastEMA9 < lastEMA15) {
+    document.getElementById("signal").innerHTML =
+        "<span class='sell'>SELL SIGNAL ❌</span>";
+} else {
+    document.getElementById("signal").innerHTML =
+        "NO CLEAR SIGNAL";
+}
+
+// === Live Crypto API (Free Public API) ===
+fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=inr")
+.then(res => res.json())
+.then(data => {
+    document.getElementById("btcPrice").innerHTML =
+        "₹ " + data.bitcoin.inr;
+});
+
+// === Gold Demo Price (Replace Later with Real API) ===
+document.getElementById("goldPrice").innerHTML = "₹ 62,000 (Demo)";
+
+// === Nifty Demo Price ===
+document.getElementById("niftyPrice").innerHTML = "₹ " + lastPrice;
+
+</script>
+
+</body>
+</html>
