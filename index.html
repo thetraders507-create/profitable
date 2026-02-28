@@ -1,94 +1,178 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Market Signal Dashboard</title>
+    <title>MarketDuniyaa | Pro Signal Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
         body {
-            font-family: Arial;
-            background: #111;
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #0f172a;
             color: white;
-            text-align: center;
         }
-        .box {
-            background: #222;
+
+        header {
+            background: #111827;
             padding: 20px;
-            margin: 20px;
-            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            border-bottom: 1px solid #1f2937;
         }
-        .buy { color: lime; font-size: 24px; }
-        .sell { color: red; font-size: 24px; }
+
+        .container {
+            padding: 20px;
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #94a3b8;
+        }
+
+        .price {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+
+        .signal-box {
+            text-align: center;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            font-size: 22px;
+            font-weight: bold;
+        }
+
+        .buy {
+            background: #064e3b;
+            color: #10b981;
+        }
+
+        .sell {
+            background: #4c0519;
+            color: #f43f5e;
+        }
+
+        .neutral {
+            background: #1e293b;
+            color: #facc15;
+        }
+
+        footer {
+            margin-top: 40px;
+            padding: 20px;
+            text-align: center;
+            font-size: 12px;
+            color: #9ca3af;
+            border-top: 1px solid #1f2937;
+        }
     </style>
 </head>
+
 <body>
 
-<h1>📊 Indian Market Signal Dashboard</h1>
+<header>
+    📊 MarketDuniyaa Pro Signal Dashboard
+</header>
 
-<div class="box">
-    <h2>NIFTY 50</h2>
-    <p id="niftyPrice">Loading...</p>
-    <p id="signal"></p>
+<div class="container">
+
+    <div id="signalBox" class="signal-box neutral">
+        Calculating Signal...
+    </div>
+
+    <div class="grid">
+        <div class="card">
+            <h3>NIFTY 50</h3>
+            <div id="niftyPrice" class="price">Loading...</div>
+        </div>
+
+        <div class="card">
+            <h3>BANK NIFTY</h3>
+            <div id="bankNiftyPrice" class="price">Loading...</div>
+        </div>
+
+        <div class="card">
+            <h3>Gold</h3>
+            <div id="goldPrice" class="price">Loading...</div>
+        </div>
+
+        <div class="card">
+            <h3>Bitcoin</h3>
+            <div id="btcPrice" class="price">Loading...</div>
+        </div>
+    </div>
+
 </div>
 
-<div class="box">
-    <h2>Gold Price</h2>
-    <p id="goldPrice">Loading...</p>
-</div>
-
-<div class="box">
-    <h2>Bitcoin Price</h2>
-    <p id="btcPrice">Loading...</p>
-</div>
+<footer>
+    ⚠ This platform is for educational purposes only. We are not SEBI registered advisors.
+</footer>
 
 <script>
 
-// === EMA Calculation ===
 function calculateEMA(prices, period) {
     let k = 2 / (period + 1);
-    let emaArray = [];
-    emaArray[0] = prices[0];
-
+    let ema = prices[0];
     for (let i = 1; i < prices.length; i++) {
-        emaArray[i] = prices[i] * k + emaArray[i - 1] * (1 - k);
+        ema = prices[i] * k + ema * (1 - k);
     }
-    return emaArray;
+    return ema;
 }
 
-// === Sample Data (Temporary Demo Data) ===
-let prices = [22000,22100,22200,22150,22300,22400,22500,22600,22700,22800];
+// Demo Nifty Data (Replace with real API later)
+let prices = [22000,22100,22200,22300,22400,22500,22600,22700,22800,22900];
 
 let ema9 = calculateEMA(prices, 9);
 let ema15 = calculateEMA(prices, 15);
-
 let lastPrice = prices[prices.length - 1];
-let lastEMA9 = ema9[ema9.length - 1];
-let lastEMA15 = ema15[ema15.length - 1];
 
-// === Signal Logic ===
-if (lastPrice > lastEMA9 && lastEMA9 > lastEMA15) {
-    document.getElementById("signal").innerHTML =
-        "<span class='buy'>BUY SIGNAL ✅</span>";
-} else if (lastPrice < lastEMA9 && lastEMA9 < lastEMA15) {
-    document.getElementById("signal").innerHTML =
-        "<span class='sell'>SELL SIGNAL ❌</span>";
-} else {
-    document.getElementById("signal").innerHTML =
-        "NO CLEAR SIGNAL";
+let signalBox = document.getElementById("signalBox");
+
+if (lastPrice > ema9 && ema9 > ema15) {
+    signalBox.innerHTML = "🚀 BUY SIGNAL";
+    signalBox.className = "signal-box buy";
+} 
+else if (lastPrice < ema9 && ema9 < ema15) {
+    signalBox.innerHTML = "🔻 SELL SIGNAL";
+    signalBox.className = "signal-box sell";
+} 
+else {
+    signalBox.innerHTML = "⚠ NO CLEAR SIGNAL";
+    signalBox.className = "signal-box neutral";
 }
 
-// === Live Crypto API (Free Public API) ===
+document.getElementById("niftyPrice").innerHTML = "₹ " + lastPrice;
+document.getElementById("bankNiftyPrice").innerHTML = "₹ 48,200 (Demo)";
+document.getElementById("goldPrice").innerHTML = "₹ 62,000 (Demo)";
+
+// Live Bitcoin API
 fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=inr")
 .then(res => res.json())
 .then(data => {
-    document.getElementById("btcPrice").innerHTML =
-        "₹ " + data.bitcoin.inr;
+    document.getElementById("btcPrice").innerHTML = "₹ " + data.bitcoin.inr;
 });
 
-// === Gold Demo Price (Replace Later with Real API) ===
-document.getElementById("goldPrice").innerHTML = "₹ 62,000 (Demo)";
-
-// === Nifty Demo Price ===
-document.getElementById("niftyPrice").innerHTML = "₹ " + lastPrice;
+setInterval(() => location.reload(), 30000);
 
 </script>
 
